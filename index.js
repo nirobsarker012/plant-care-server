@@ -21,8 +21,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-
+    // allPlants collection
+    const allPlantCollection = client.db("plantDB").collection("allPlants");
     // Collection Point
     const plantColloection = client.db("plantDB").collection("plants");
     // User collection
@@ -39,15 +39,28 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/plant-details", async (req, res) => {
+      const result = await allPlantCollection.find().toArray();
+      res.send(result);
+    });
+
     app.get("/plants/:id", async (req, res) => {
       const id = req.params.id;
-
       const plant = await plantColloection.findOne({
         _id: new ObjectId(id),
       });
 
       res.send(plant);
     });
+
+    app.get("/plant-details/:id", async (req, res)=>
+    {
+      const id = req.params.id;
+      const plantDetails = await allPlantCollection.findOne({
+        _id:new ObjectId(id),
+      })
+      res.send(plantDetails);
+    })
 
     // update plantData
     app.put("/plants/:id", async (req, res) => {
@@ -88,10 +101,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -104,7 +117,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Plant app listening on port ${port}`);
+  console.log(`Plant app listening on http://localhost:${port}`);
 });
 
 //
